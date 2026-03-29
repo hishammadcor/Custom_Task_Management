@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties for theming ───────────────────────────────────── */
+:root {
+  --color-q1: #DC2626;
+  --color-q2: #059669;
+  --color-q3: #D97706;
+  --color-q4: #475569;
+  --font-scale: 1;
+}
+
+/* ── Font size scaling ───────────────────────────────────────────────────── */
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+
+/* ── Smooth theme transitions ────────────────────────────────────────────── */
+*, *::before, *::after {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.05s ease;
+}
+
+/* Disable transition during SSR/initial render to avoid flash */
+.no-transitions * {
+  transition: none !important;
+}
+
+/* ── Custom scrollbars ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-500;
+}
+
+/* ── Focus rings ─────────────────────────────────────────────────────────── */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-500;
+}
+
+/* ── Drag states ─────────────────────────────────────────────────────────── */
+[data-dragging="true"] {
+  @apply opacity-50;
+}
+
+.drop-target-active {
+  @apply ring-2 ring-inset ring-blue-400;
+}
+
+/* ── Task pill hover/drag animations ────────────────────────────────────── */
+.task-pill {
+  @apply select-none cursor-grab active:cursor-grabbing;
+  touch-action: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+}
+
+.task-pill:hover {
+  transform: translateY(-2px) scale(1.05);
+  @apply shadow-lg;
+}
+
+.task-pill:active {
+  transform: scale(0.97);
+}
+
+/* ── Quadrant drop zone highlight ───────────────────────────────────────── */
+.quadrant-drop-active {
+  @apply ring-2 ring-inset ring-blue-400 ring-offset-0;
+  animation: pulse-border 1s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% { ring-color: rgb(96 165 250); }
+  50% { ring-color: rgb(59 130 246); }
+}
+
+/* ── High contrast mode ──────────────────────────────────────────────────── */
+.high-contrast {
+  filter: contrast(1.4);
+}
+
+/* ── Mobile touch targets ───────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ── Print styles ────────────────────────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+}
+
+/* ── Popover arrow ───────────────────────────────────────────────────────── */
+.popover-arrow {
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  @apply bg-white dark:bg-slate-800 border-r border-b border-slate-200 dark:border-slate-700;
+}
