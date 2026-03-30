@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -13,9 +14,19 @@ interface QuadrantPanelProps {
 
 export function QuadrantPanel({ quadrantId, onOpenDetail }: QuadrantPanelProps) {
   const { settings } = useSettingsStore();
-  const getTasksByQuadrant = useTaskStore((s) => s.getTasksByQuadrant);
-
-  const tasks = getTasksByQuadrant(quadrantId, settings.showCompleted);
+  const allTasks = useTaskStore((s) => s.tasks);
+  const tasks = useMemo(
+    () =>
+      allTasks
+        .filter(
+          (t) =>
+            t.quadrant === quadrantId &&
+            !t.archived &&
+            (settings.showCompleted || !t.completed),
+        )
+        .sort((a, b) => a.quadrantIndex - b.quadrantIndex),
+    [allTasks, quadrantId, settings.showCompleted],
+  );
   const config = QUADRANT_CONFIG[quadrantId];
   const color = settings.quadrantColors[quadrantId];
 

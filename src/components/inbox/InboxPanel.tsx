@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { useTaskStore } from '../../store/taskStore';
@@ -13,8 +13,20 @@ interface InboxPanelProps {
 
 export function InboxPanel({ onOpenDetail, addFormRef }: InboxPanelProps) {
   const { settings } = useSettingsStore();
-  const getFilteredInboxTasks = useTaskStore((s) => s.getFilteredInboxTasks);
-  const tasks = getFilteredInboxTasks(settings.showCompleted);
+  const allTasks = useTaskStore((s) => s.tasks);
+  const searchQuery = useTaskStore((s) => s.searchQuery);
+  const tasks = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    return allTasks
+      .filter(
+        (t) =>
+          t.quadrant === 'inbox' &&
+          !t.archived &&
+          (settings.showCompleted || !t.completed) &&
+          (!q || t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)),
+      )
+      .sort((a, b) => a.quadrantIndex - b.quadrantIndex);
+  }, [allTasks, searchQuery, settings.showCompleted]);
 
   const { setNodeRef, isOver } = useDroppable({ id: 'inbox' });
 
