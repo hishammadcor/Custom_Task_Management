@@ -1,4 +1,4 @@
-import { useRef, useImperativeHandle, forwardRef } from 'react';
+import { useRef, useImperativeHandle, forwardRef, useMemo } from 'react';
 import { useTaskStore } from '../../store/taskStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { QUADRANT_CONFIG } from '../../utils/colors';
@@ -16,9 +16,22 @@ export const SearchBar = forwardRef<SearchBarHandle, SearchBarProps>(
   ({ onOpenDetail }, ref) => {
     const searchQuery = useTaskStore((s) => s.searchQuery);
     const setSearchQuery = useTaskStore((s) => s.setSearchQuery);
-    const getSearchResults = useTaskStore((s) => s.getSearchResults);
+    const allTasks = useTaskStore((s) => s.tasks);
     const { settings } = useSettingsStore();
-    const results = getSearchResults(settings.showCompleted);
+    const results = useMemo(() => {
+      if (!searchQuery.trim()) return [];
+      const q = searchQuery.toLowerCase();
+      return allTasks
+        .filter(
+          (t) =>
+            !t.archived &&
+            (settings.showCompleted || !t.completed) &&
+            (t.title.toLowerCase().includes(q) ||
+              t.description.toLowerCase().includes(q) ||
+              t.tags.some((tag) => tag.toLowerCase().includes(q))),
+        )
+        .sort((a, b) => a.sequentialNumber - b.sequentialNumber);
+    }, [allTasks, searchQuery, settings.showCompleted]);
 
     const inputRef = useRef<HTMLInputElement>(null);
 
